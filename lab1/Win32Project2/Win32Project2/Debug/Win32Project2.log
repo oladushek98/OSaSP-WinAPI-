@@ -1,0 +1,5 @@
+﻿  Win32Project2.cpp
+d:\универ\осисп(ч.2)\lab\win32project2\win32project2\win32project2.cpp(248): warning C4805: ==: небезопасное смешение типа "SHORT" и типа "bool" в операции
+d:\универ\осисп(ч.2)\lab\win32project2\win32project2\win32project2.cpp(256): warning C4805: ==: небезопасное смешение типа "SHORT" и типа "bool" в операции
+  Win32Project2.vcxproj -> D:\Универ\ОСиСП(ч.2)\lab\Win32Project2\Debug\Win32Project2.exe
+  Win32Project2.vcxproj -> D:\Универ\ОСиСП(ч.2)\lab\Win32Project2\Debug\Win32Project2.pdb (Full PDB)
