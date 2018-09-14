@@ -14,7 +14,7 @@ WCHAR szTitle[MAX_LOADSTRING];                  // “екст строки заголовка
 WCHAR szWindowClass[MAX_LOADSTRING];            // им€ класса главного окна
 int left = 100, right = 150, top = 200, bottom = 250;
 const int move = 1;
-bool flag = true, space = true;
+bool flag, space;
 int idTimer = -1;
 int moveSide;
 HBITMAP hBitmap = NULL;
@@ -45,6 +45,20 @@ void ChangeSpritePose(HWND hWnd, int &first, int &second, bool plus)
 	InvalidateRect(hWnd, NULL, TRUE);
 	UpdateWindow(hWnd);
 }
+
+
+void SpriteMove(HWND hWnd, bool &plus, bool plusValue, bool flag, int side, int &first, int &second)
+{
+	plus = plusValue;
+	if (flag)
+	{
+		moveSide = side;
+		SetTimer(hWnd, 1, 10, NULL);
+	}
+	ChangeSpritePose(hWnd, first, second, plus);
+}
+
+
 
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -260,69 +274,35 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				case VK_LEFT:
 				{
-					plus = false;
-					if (flag == true)
-					{
-						moveSide = 1;
-						SetTimer(hWnd, 1, 10, NULL);
-					}
-					ChangeSpritePose(hWnd, left, right, plus);
+					SpriteMove(hWnd, plus, false, flag, 1, left, right);
 					break;
 				}
 				case VK_RIGHT:
 				{
-					plus = true;
-					if (flag == true)
-					{
-						moveSide = 2;
-						SetTimer(hWnd, 1, 10, NULL);
-					}
-					ChangeSpritePose(hWnd, right, left, plus);
+					SpriteMove(hWnd, plus, true, flag, 2, right, left);
 					break;
 				}
 				case VK_UP:
 				{
-					plus = false;
 					if (GetKeyState(VK_SHIFT) < 0)
 					{
-						if (flag == true)
-						{
-							moveSide = 1;
-							SetTimer(hWnd, 1, 10, NULL);
-						}
-						ChangeSpritePose(hWnd, left, right, plus);
+						SpriteMove(hWnd, plus, false, flag, 1, left, right);
 					}
 					else
 					{
-						if (flag == true)
-						{
-							moveSide = 3;
-							SetTimer(hWnd, 1, 10, NULL);
-						}
-						ChangeSpritePose(hWnd, top, bottom, plus);
+						SpriteMove(hWnd, plus, false, flag, 3, top, bottom);
 					}
 					break;
 				}
 				case VK_DOWN:
 				{
-					plus = true;
 					if (GetKeyState(VK_SHIFT) < 0)
 					{
-						if (flag == true)
-						{
-							moveSide = 2;
-							SetTimer(hWnd, 1, 10, NULL);
-						}
-						ChangeSpritePose(hWnd, right, left, plus);
+						SpriteMove(hWnd, plus, true, flag, 2, right, left);
 					}
 					else
 					{
-						if (flag == true)
-						{
-							moveSide = 4;
-							SetTimer(hWnd, 1, 10, NULL);
-						}
-						ChangeSpritePose(hWnd, bottom, top, plus);
+						SpriteMove(hWnd, plus, true, flag, 4, bottom, top);
 					}
 					break;
 				}
@@ -380,7 +360,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_MOUSEWHEEL:
 		{
-			bool plus = true;
+			bool plus;
 				
 			if (GET_WHEEL_DELTA_WPARAM(wParam) > 0)
 			{
