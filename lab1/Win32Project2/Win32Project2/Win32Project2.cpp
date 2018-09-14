@@ -14,6 +14,9 @@ WCHAR szTitle[MAX_LOADSTRING];                  // “екст строки заголовка
 WCHAR szWindowClass[MAX_LOADSTRING];            // им€ класса главного окна
 int left = 100, right = 150, top = 200, bottom = 250;
 const int move = 1;
+bool flag = true, space = true;
+int idTimer = -1;
+int moveSide;
 HBITMAP hBitmap = NULL;
 
 
@@ -188,7 +191,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			SelectObject(hdc, GetStockObject(BLACK_PEN));
 			SelectObject(hdc, GetStockObject(BLACK_BRUSH));
 			Rectangle(hdc, left, top, right, bottom);
-            EndPaint(hWnd, &ps);
+            EndPaint(hWnd, &ps); 
 			/*PAINTSTRUCT ps;
 			HDC             hdc;
 			BITMAP          bitmap;
@@ -201,12 +204,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			oldBitmap = SelectObject(hdcMem, hBitmap);
 
 			GetObject(hBitmap, sizeof(bitmap), &bitmap);
-			BitBlt(hdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCCOPY);
+			BitBlt(hdc, 100, 150, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCCOPY);
 			SelectObject(hdcMem, oldBitmap);
 			DeleteDC(hdcMem);
 
-			EndPaint(hWnd, &ps);*/
-			
+			EndPaint(hWnd, &ps);*/		
         }
         break;
     
@@ -225,25 +227,56 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			ReleaseDC(hWnd, hdc);
 		}
 		break;
+
+	case WM_SIZE:
+		{
+			switch (wParam)
+			{
+				case SIZE_MINIMIZED:
+					KillTimer(hWnd, 1);
+					idTimer = -1;
+					break;
+				case SIZE_RESTORED:
+					if (right > (int)LOWORD(lParam))
+					{
+						left = (right = (int)LOWORD(lParam)) -50 ;
+					}
+					if (bottom > (int)HIWORD(lParam))
+					{
+						top = (bottom = (int)HIWORD(lParam)) - 50;
+					}
+				/*case SIZE_MAXIMIZED:
+					if (idTimer = -1)
+						SetTimer(hWnd, 1, 10, NULL);
+					break;*/
+			}
+			break;
+		}
 	
 	case WM_KEYDOWN:
 		{
-			bool plus = true;
+			bool plus;
 			switch (wParam)
 			{
 				case VK_LEFT:
 				{
 					plus = false;
-					ChangeSpritePose(hWnd, left, right, plus);
-					/*if (left < 0)
+					if (flag == true)
 					{
-						
-					}*/
+						moveSide = 1;
+						SetTimer(hWnd, 1, 10, NULL);
+					}
+					ChangeSpritePose(hWnd, left, right, plus);
 					break;
 				}
 				case VK_RIGHT:
 				{
 					plus = true;
+					if (flag == true)
+					{
+						moveSide = 2;
+						SetTimer(hWnd, 1, 10, NULL);
+					}
 					ChangeSpritePose(hWnd, right, left, plus);
 					break;
 				}
@@ -251,18 +284,64 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				{
 					plus = false;
 					if (GetKeyState(VK_SHIFT) < 0)
+					{
+						if (flag == true)
+						{
+							moveSide = 1;
+							SetTimer(hWnd, 1, 10, NULL);
+						}
 						ChangeSpritePose(hWnd, left, right, plus);
+					}
 					else
+					{
+						if (flag == true)
+						{
+							moveSide = 3;
+							SetTimer(hWnd, 1, 10, NULL);
+						}
 						ChangeSpritePose(hWnd, top, bottom, plus);
+					}
 					break;
 				}
 				case VK_DOWN:
 				{
 					plus = true;
 					if (GetKeyState(VK_SHIFT) < 0)
+					{
+						if (flag == true)
+						{
+							moveSide = 2;
+							SetTimer(hWnd, 1, 10, NULL);
+						}
 						ChangeSpritePose(hWnd, right, left, plus);
+					}
 					else
+					{
+						if (flag == true)
+						{
+							moveSide = 4;
+							SetTimer(hWnd, 1, 10, NULL);
+						}
 						ChangeSpritePose(hWnd, bottom, top, plus);
+					}
+					break;
+				}
+				case VK_SPACE:
+				{
+					switch(space)
+					{
+						case true:
+							moveSide = 1;
+							SetTimer(hWnd, 1, 10, NULL);
+							flag = true;
+							space = false;
+							break;
+						case false:
+							KillTimer(hWnd, 1);
+							space = true;
+							flag = false;
+							break;
+					}
 					break;
 				}
 				default:
@@ -270,6 +349,34 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}	
 		}
 		break;
+
+	case WM_TIMER:
+		{	
+			bool plus;
+			switch (moveSide)
+			{
+				case 1:
+					plus = false;
+					ChangeSpritePose(hWnd, left, right, plus);
+					break;
+				case 2: 
+					plus = true;
+					ChangeSpritePose(hWnd, right, left, plus);
+					break;
+				case 3: 
+					plus = false;
+					ChangeSpritePose(hWnd, top, bottom, plus);
+					break;
+				case 4:
+					plus = true;
+					ChangeSpritePose(hWnd, bottom, top, plus);
+					break;
+			}			
+			//if (left == 0)
+				//plus = true;
+			//while(1)					
+			break;
+		}
 
 	case WM_MOUSEWHEEL:
 		{
@@ -295,6 +402,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_DESTROY:
+		KillTimer(hWnd, 1);
 		DeleteObject(hBitmap);
 		PostQuitMessage(0);
 		break;
