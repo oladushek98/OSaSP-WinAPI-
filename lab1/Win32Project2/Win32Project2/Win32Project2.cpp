@@ -14,9 +14,9 @@ WCHAR szTitle[MAX_LOADSTRING];                  // “екст строки заголовка
 WCHAR szWindowClass[MAX_LOADSTRING];            // им€ класса главного окна
 int left = 100, right = 150, top = 200, bottom = 250;
 const int move = 1;
-bool flag, space;
+bool flag, space = true;
 int idTimer = -1;
-int moveSide;
+int moveSide, i = 0, j;
 HBITMAP hBitmap = NULL;
 
 
@@ -57,6 +57,27 @@ void SpriteMove(HWND hWnd, bool &plus, bool plusValue, bool flag, int side, int 
 	}
 	ChangeSpritePose(hWnd, first, second, plus);
 }
+
+int DisplayConfirmSaveAsMessageBox(int &value)
+{
+	int msgboxID = MessageBox(
+		NULL,
+		L"Use Reactangle?",
+		L"You're to choose the figure to use",
+		MB_ICONEXCLAMATION | MB_YESNO
+	);
+
+
+	if (msgboxID == IDYES)
+	{
+		value = 1;
+	}
+	else
+		value = 0;
+
+	return value;
+}
+
 
 
 
@@ -204,7 +225,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             HDC hdc = BeginPaint(hWnd, &ps);
 			SelectObject(hdc, GetStockObject(BLACK_PEN));
 			SelectObject(hdc, GetStockObject(BLACK_BRUSH));
-			Rectangle(hdc, left, top, right, bottom);
+			if (i == 0)
+			{
+				DisplayConfirmSaveAsMessageBox(j);
+				i++;
+			}	
+			if (j == 1)
+				Rectangle(hdc, left, top, right, bottom);
+			else
+				Ellipse(hdc, left, top, right, bottom);
             EndPaint(hWnd, &ps); 
 			/*PAINTSTRUCT ps;
 			HDC             hdc;
@@ -333,24 +362,52 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_TIMER:
 		{	
 			bool plus;
+			RECT rect;
+			int width, height;
+			if (GetClientRect(hWnd, &rect))
+			{
+				width = rect.right - rect.left;
+				height = rect.bottom - rect.top;
+			}
 			switch (moveSide)
 			{
 				case 1:
 					plus = false;
-					ChangeSpritePose(hWnd, left, right, plus);
+					if (left == 0)
+					{
+						SpriteMove(hWnd, plus, true, true, 2, right, left);
+					}
+					else
+						ChangeSpritePose(hWnd, left, right, plus);
 					break;
 				case 2: 
 					plus = true;
-					ChangeSpritePose(hWnd, right, left, plus);
+					if (right == width)
+					{
+						SpriteMove(hWnd, plus, false, true, 1, left, right);
+					}
+					else
+						ChangeSpritePose(hWnd, right, left, plus);
 					break;
 				case 3: 
 					plus = false;
-					ChangeSpritePose(hWnd, top, bottom, plus);
+					if (top == 0)
+					{
+						SpriteMove(hWnd, plus, true, true, 4, top, bottom);
+					}
+					else
+						ChangeSpritePose(hWnd, top, bottom, plus);
 					break;
 				case 4:
 					plus = true;
-					ChangeSpritePose(hWnd, bottom, top, plus);
+					if (bottom == height )
+					{
+						SpriteMove(hWnd, plus, false, true, 3, left, right);
+					}
+					else
+						ChangeSpritePose(hWnd, bottom, top, plus);
 					break;
+					
 			}			
 			//if (left == 0)
 				//plus = true;
