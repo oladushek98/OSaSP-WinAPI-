@@ -46,6 +46,14 @@ void ChangeSpritePose(HWND hWnd, int &first, int &second, bool plus)
 	UpdateWindow(hWnd);
 }
 
+// Изменение размеров квадрата
+void ChangeSize(HWND hWnd, int &Height, int &Widht)
+{
+	right = Height;
+	bottom = Widht;
+	InvalidateRect(hWnd, NULL, TRUE);
+	UpdateWindow(hWnd);
+}
 
 void SpriteMove(HWND hWnd, bool &plus, bool plusValue, bool flag, int side, int &first, int &second)
 {
@@ -371,44 +379,44 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 			switch (moveSide)
 			{
-				case 1:
-					plus = false;
-					if (left == 0)
-					{
-						SpriteMove(hWnd, plus, true, true, 2, right, left);
-					}
-					else
-						ChangeSpritePose(hWnd, left, right, plus);
-					break;
-				case 2: 
-					plus = true;
-					if (right == width)
-					{
-						SpriteMove(hWnd, plus, false, true, 1, left, right);
-					}
-					else
-						ChangeSpritePose(hWnd, right, left, plus);
-					break;
-				case 3: 
-					plus = false;
-					if (top == 0)
-					{
-						SpriteMove(hWnd, plus, true, true, 4, top, bottom);
-					}
-					else
-						ChangeSpritePose(hWnd, top, bottom, plus);
-					break;
-				case 4:
-					plus = true;
-					if (bottom == height )
-					{
-						SpriteMove(hWnd, plus, false, true, 3, left, right);
-					}
-					else
-						ChangeSpritePose(hWnd, bottom, top, plus);
-					break;
-					
-			}			
+			case 1:
+				plus = false;
+				if (left <= 0)
+				{
+					SpriteMove(hWnd, plus, true, true, 2, right, left);
+				}
+				else
+					ChangeSpritePose(hWnd, left, right, plus);
+				break;
+			case 2:
+				plus = true;
+				if (right >= width)
+				{
+					SpriteMove(hWnd, plus, false, true, 1, left, right);
+				}
+				else
+					ChangeSpritePose(hWnd, right, left, plus);
+				break;
+			case 3:
+				plus = false;
+				if (top <= 0)
+				{
+					SpriteMove(hWnd, plus, true, true, 4, top, bottom);
+				}
+				else
+					ChangeSpritePose(hWnd, top, bottom, plus);
+				break;
+			case 4:
+				plus = true;
+				if (bottom >= height)
+				{
+					SpriteMove(hWnd, plus, false, true, 3, left, right);
+				}
+				else
+					ChangeSpritePose(hWnd, bottom, top, plus);
+				break;
+
+			}
 			//if (left == 0)
 				//plus = true;
 			//while(1)					
@@ -422,18 +430,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (GET_WHEEL_DELTA_WPARAM(wParam) > 0)
 			{
 				plus = false;
-				if (GetKeyState(VK_SHIFT) < 0)
-					ChangeSpritePose(hWnd, left, right, plus);
-				else 
-					ChangeSpritePose(hWnd, top, bottom, plus);
+				if (GetKeyState(VK_CONTROL) < 0)
+					ChangeSize(hWnd, ++right, ++bottom);
+				else
+					if (GetKeyState(VK_SHIFT) < 0)
+						ChangeSpritePose(hWnd, left, right, plus);
+					else
+						ChangeSpritePose(hWnd, top, bottom, plus);
 			}
 			else
 			{
 				plus = true;
-				if (GetKeyState(VK_SHIFT) < 0)			
-					ChangeSpritePose(hWnd, right, left, plus);
+				if (GetKeyState(VK_CONTROL) < 0)
+					ChangeSize(hWnd, --right, --bottom);
 				else
-					ChangeSpritePose(hWnd, bottom, top, plus);
+					if (GetKeyState(VK_SHIFT) < 0)
+						ChangeSpritePose(hWnd, right, left, plus);
+					else
+						ChangeSpritePose(hWnd, bottom, top, plus);
 			}
 		}
 		break;
